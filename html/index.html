@@ -1,0 +1,660 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Visualization</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+  <style type="text/css">
+    #mynetwork {
+      width: 100%;
+      height: 500px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+  <script type="text/javascript">
+    var nodes, edges, network;
+    var ccolor = [
+                  '#97C2FC',
+                  '#FFFF00',
+                  '#FB7E81',
+                  '#7BE141',
+                  '#6E6EFD',
+                  '#C2FABC'
+              ];
+    // newcommitment
+
+    function draw() {
+      var mynetwork = document.getElementById('mynetwork');
+      var legend_x = - mynetwork.clientWidth / 2 + 50;
+      var legend_y = - mynetwork.clientHeight / 2 + 50;
+      var cn_x = legend_x + 200;
+      var cn_y = legend_y;
+      var tn_x = cn_x + 335;
+      var tn_y = cn_y + 250;
+      var ran_x = tn_x + 300;
+      var ran_y = tn_y;
+      var point = "";
+      $(document).ready(function(){
+          $.getJSON("data.json", function(data){
+            point = data;
+          })
+        });
+      nodes = new vis.DataSet([
+        {
+          id: "cloud",
+          shape: "image",
+          image: "cloud.png",
+          label: "Core Network",
+          x: cn_x + 50,
+          y: cn_y + 250,
+          physics:false,
+          fixed: true,
+          size: 180 
+        },
+        {
+          id: "cn framework",
+          shape: "image",
+          image: "tn_frame.png",
+          label: "Core Network",
+          x: cn_x + 50,
+          y: cn_y + 250,
+          physics:false,
+          fixed: true,
+          size: 180 
+        },
+        {
+          id: "tn framework",
+          shape: "image",
+          image: "tn_frame.png",
+          label: "Transport Network",
+          x: tn_x + 100,
+          y: tn_y,
+          physics:false,
+          fixed: true,
+          size: 180 
+        },
+        {
+          id: "ran framework",
+          shape: "image",
+          image: "ran_frame.png",
+          label: "Radio Access Network",
+          x: ran_x + 250,
+          y: ran_y,
+          physics:false,
+          fixed: true,
+          size: 180 
+        },
+        {
+          id: "CN orchestration",
+          label: "",
+          shape: "text",
+          x: cn_x + 250,
+          y: cn_y + 250,
+          physics:false
+        },
+        //tn nodes
+        {
+          id: "s01",
+          title: "latency: null, <br> throughput: 6",
+          label: "Switch 1",
+          shape: 'image',
+          image: "switch.png",
+          x: tn_x,
+          y: tn_y,
+          physics:false
+        },
+        {
+          id: "s02",
+          title: "latency: null, <br> throughput: 6",
+          label: "Switch 2",
+          shape: 'image',
+          image: "switch.png",
+          x: tn_x + 100,
+          y: tn_y - 100,
+          physics:false
+        },
+        {
+          id: "s03",
+          title: "latency: null, <br> throughput: 6",
+          label: "Switch 3",
+          shape: 'image',
+          image: "switch.png",
+          x: tn_x + 200,
+          y: tn_y,
+          physics:false
+        },
+        {
+          id: "s04",
+          title: "latency: null, <br> throughput: 6",
+          label: "Switch 4",
+          shape: 'image',
+          image: "switch.png",
+          x: tn_x + 100,
+          y: tn_y + 100,
+          physics:false
+        },
+        {
+          id: "RAN orchestration",
+          shape: 'text',
+          x: ran_x,
+          y: ran_y,
+          physics:false
+        },
+        {
+          id: "RAN",
+          label: "Access Point",
+          title: "total: 50ms <br> service: \"best-effort\"",
+          shape: "triangle",
+          color: "#FFA807",
+          x: ran_x + 100,
+          y: ran_y,
+          physics:false,
+          fixed:true
+        },
+      ]);
+      edges = new vis.DataSet([
+        {
+          id: 'RAN orchestrationRAN',
+          from: 'RAN orchestration',
+          to:"RAN",
+          color: "grey",
+          width: 10
+        },
+        {
+          id: "CN orchestrations01",
+          from: "CN orchestration",
+          to: "s01",
+          color: "grey",
+          dashes: true
+        },
+        {
+          id: "s01s02",
+          from: "s01",
+          to: "s02",
+          color: "grey",
+          dashes: true
+        },
+        // {
+        //   id: "s01s03",
+        //   from: "s01",
+        //   to: "s03",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        {
+          id: "s01s04",
+          from: "s01",
+          to: "s04",
+          color: "grey",
+          dashes: true
+        },
+        // {
+        //   id: "s02s01",
+        //   from: "s02",
+        //   to: "s01",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        {
+          id: "s02s03",
+          from: "s02",
+          to: "s03",
+          color: "grey",
+          dashes: true
+        },
+        // {
+        //   id: "s02s04",
+        //   from: "s02",
+        //   to: "s04",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        {
+          id: "s04s03",
+          from: "s04",
+          to: "s03",
+          color: "grey",
+          dashes: true,
+        },
+        // {
+        //   id: "s03s01",
+        //   from: "s03",
+        //   to: "s01",
+        //   color: "grey",
+        //   dashes: true,
+        //   arrows:"to"
+        // },
+        {
+          id: "s03RAN orchestration",
+          from: "s03",
+          to: "RAN orchestration",
+          color: "grey",
+          dashes: true,
+        },
+        ]);
+      $(document).ready(function(){
+      $.getJSON("data.json", function(data){
+        var index = 1
+        for(x in data) {
+          try {
+            //legend
+            nodes.add(
+              {
+                id: "slice" + index,
+                x: legend_x,
+                title: "Click for more INFO",
+                y: legend_y + 60 + 30 * index,
+                label: 'Slice ' + index,
+                color: ccolor[index%6],
+                fixed: true, 
+                shape: "box",
+                physics:false
+              }
+            );
+              
+            //cn nodes
+            nodes.add(
+              {
+                id: "cn" + index,
+                font:{
+                  size: 8
+                },
+                label: "Container "+ index, 
+                title: "distro: " + JSON.stringify(data[x]["cn"]["distro"]) + " <br> "
+                   + "memory_usage: " + Math.round(JSON.stringify(data[x]["cn"]["memory"]["usage"] / 1000000)) + "MB <br> "
+                   + "cpu_usage: " + JSON.stringify(data[x]["cn"]["cpu"]["usage"].toString().substring(0,2)) + "% <br> "
+                   + "service: " + JSON.stringify(data[x]["cn"]["service"]),
+                shape: "database",
+                x: cn_x - 15 + 60 * (index % 3),
+                y: cn_y + 220 + 55 * Math.floor(index / 3),
+                color: ccolor[index%6],
+                physics: false
+              }
+            );
+            //cn2orchestration edges
+            edges.add(
+            {
+              id: "cn2tn" + index,
+              from: "cn" + index, 
+              to: "CN orchestration",
+            });
+            //orchestration2switches
+            index = index +1;
+          }
+          catch (err) {
+              alert(err);
+            }
+        }
+      }).fail(function(){
+            console.log("An error has occurred.");
+          });
+    });
+      var container = document.getElementById('mynetwork');
+      var data = {
+          nodes: nodes,
+          edges: edges
+      };
+      var options = {
+        edges:{
+          width:2
+        },
+        interaction: {
+          navigationButtons: true,
+          keyboard: true
+        }
+      };
+      var current_nodes = [];
+      network = new vis.Network(container, data, options);
+      network.on("click", function (params) {
+        var string = params.nodes.toString();
+        if (string.substring(0,5)=="slice") {
+          char = parseInt(string.charAt(5));
+          $(document).ready(function(){
+            $.getJSON("data.json", function(data){
+              document.getElementById('eventSpan').innerHTML = JSON.stringify(data[Object.keys(data)[char - 1]], null, 4);
+              const selectednodes = [];
+              selectednodes.push("cn" + char);
+              var path = JSON.stringify(data[Object.keys(data)[char - 1]]["tn"]["path_string"]);
+              var patt = /[s]\d\d/g;
+              var res = path.match(patt);
+              try{
+                  edges.update({
+                    id: "CN orchestration" + res[0],
+                    color: ccolor[char%6],
+                    dashes: false
+                  });
+                }
+                catch (err) {
+                    alert(err);
+                };
+              try{
+                  edges.update({
+                    id: res[res.length-1] + "RAN orchestration",
+                    color: ccolor[char%6],
+                    dashes: false
+                  });
+                }
+                catch (err) {
+                    alert(err);
+                }
+              try{
+                  edges.update({
+                  id: 'RAN orchestrationRAN',
+                  color: ccolor[char%6],
+                  width: 2
+                });
+              }
+              catch(err) {
+                alert(err)
+              }
+
+              for (var i = 0; i <= res.length -1; i++ ){
+                try{
+                  edges.update({
+                    id: res[i] + res[i+1],
+                    color: ccolor[char%6],
+                    dashes: false
+                  });
+                }
+                catch (err) {
+                    alert(err);
+                }
+                 
+              }
+              for (i in res){
+                selectednodes.push(res[i]);
+              };
+              selectednodes.push("RAN");
+              network.setSelection(
+                {
+                  nodes: selectednodes
+                },
+                {
+                  unselectAll: true,
+                  highlightEdges: false
+                })
+                  
+                  })
+                })
+              network.on("afterDrawing", function (ctx) {
+                //cn
+              var nodeId = "cn framework";
+              var nodePosition = network.getPositions([nodeId]);
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 17;
+              ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142);
+              ctx.lineTo(nodePosition[nodeId].x - 40,nodePosition[nodeId].y - 142);
+              ctx.stroke();
+              ctx.closePath();
+              ctx.font = "11px Arial";
+              ctx.fillText("CPU:1/4", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142); 
+              //tn
+              var nodePositionTN = network.getPositions("tn framework");
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 17;
+              ctx.moveTo(nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 140);
+              ctx.lineTo(nodePositionTN["tn framework"].x - 40,nodePositionTN["tn framework"].y - 140);
+              ctx.stroke();
+              ctx.closePath();
+              ctx.font = "11px Arial";
+              ctx.fillText("Throughput: 6/24pps", nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 142); 
+              //ran
+              var nodePositionRAN = network.getPositions("ran framework");
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 17;
+              ctx.moveTo(nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 140);
+              ctx.lineTo(nodePositionRAN["ran framework"].x - 110,nodePositionRAN["ran framework"].y - 140);
+              ctx.stroke();
+              ctx.closePath();
+              ctx.font = "11px Arial";
+              ctx.fillText("Airtime: 10/50ms", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 140); 
+              //bandwith
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 13;
+              ctx.moveTo(nodePositionRAN["ran framework"].x - 100,nodePositionRAN["ran framework"].y - 90);
+              ctx.lineTo(nodePositionRAN["ran framework"].x + 150 ,nodePositionRAN["ran framework"].y -90);
+              ctx.stroke();
+              ctx.closePath();
+              ctx.font = "11px Arial";
+              ctx.fillText("Slice" + char, nodePositionRAN["ran framework"].x - 100+ 52*(char-1),nodePositionRAN["ran framework"].y - 90);
+              })
+          }else{
+            edges.update([{
+          id: "CN orchestrations01",
+          from: "CN orchestration",
+          to: "s01",
+          color: "grey",
+          dashes: true
+        },
+        {
+          id: "s01s02",
+          from: "s01",
+          to: "s02",
+          color: "grey",
+          dashes: true
+        },
+        // {
+        //   id: "s01s03",
+        //   from: "s01",
+        //   to: "s03",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        {
+          id: "s01s04",
+          from: "s01",
+          to: "s04",
+          color: "grey",
+          dashes: true
+        },
+        // {
+        //   id: "s02s01",
+        //   from: "s02",
+        //   to: "s01",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        {
+          id: "s02s03",
+          from: "s02",
+          to: "s03",
+          color: "grey",
+          dashes: true
+        },
+        // {
+        //   id: "s02s04",
+        //   from: "s02",
+        //   to: "s04",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        {
+          id: "s04s03",
+          from: "s04",
+          to: "s03",
+          color: "grey",
+          dashes: true,
+        },
+        // {
+        //   id: "s03s01",
+        //   from: "s03",
+        //   to: "s01",
+        //   color: "grey",
+        //   dashes: true,
+        //   arrows:"to"
+        // },
+        {
+          id: "s03RAN orchestration",
+          from: "s03",
+          to: "RAN orchestration",
+          color: "grey",
+          dashes: true,
+        },
+        {
+          id: 'RAN orchestrationRAN',
+          from: 'RAN orchestration',
+          to:"RAN",
+          color: "grey",
+          width: 10
+        }
+        ])
+            network.on("afterDrawing", function (ctx) {
+                //cn
+              var nodeId = "cn framework";
+              var nodePosition = network.getPositions([nodeId]);
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 17;
+              ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 140);
+              ctx.lineTo(nodePosition[nodeId].x - 40,nodePosition[nodeId].y - 140);
+              ctx.stroke();
+              ctx.closePath();
+              ctx.font = "11px Arial";
+              ctx.fillText("CPU: " + Object.keys(point).length + "/4", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 142); 
+              //tn
+              var nodePositionTN = network.getPositions("tn framework");
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 17;
+              ctx.moveTo(nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 140);
+              ctx.lineTo(nodePositionTN["tn framework"].x - 40,nodePositionTN["tn framework"].y - 140);
+              ctx.stroke();
+              ctx.closePath();
+              ctx.font = "11px Arial";
+              ctx.fillText("Throughput: " + Object.keys(point).length * 6 + "/24pps", nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 142); 
+
+              var nodePositionRAN = network.getPositions("ran framework");
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 17;
+              ctx.moveTo(nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 140);
+              ctx.lineTo(nodePositionRAN["ran framework"].x - 110,nodePositionRAN["ran framework"].y - 140);
+              ctx.stroke();
+              ctx.closePath();
+              ctx.font = "11px Arial";
+              ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/50ms", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 140); 
+              ctx.strokeStyle = "white";
+              ctx.fillStyle = '#294475';
+              ctx.beginPath();
+              ctx.lineWidth = 13;
+              ctx.moveTo(nodePositionRAN["ran framework"].x - 100,nodePositionRAN["ran framework"].y - 90);
+              ctx.lineTo(nodePositionRAN["ran framework"].x + 150 ,nodePositionRAN["ran framework"].y -90);
+              ctx.stroke();
+              ctx.closePath();
+            });
+          }
+      });
+
+      //draw bandwith
+      network.on("beforeDrawing", function (ctx) {
+            var nodeId = "RAN";
+            var nodePosition = network.getPositions([nodeId]);
+            ctx.strokeStyle = '#A6D5F7';
+            ctx.fillStyle = '#294475';
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.moveTo(nodePosition[nodeId].x,nodePosition[nodeId].y);
+            ctx.lineTo(nodePosition[nodeId].x + 30,nodePosition[nodeId].y - 30);
+            ctx.lineTo(nodePosition[nodeId].x + 30,nodePosition[nodeId].y - 100);
+            ctx.lineTo(nodePosition[nodeId].x + 330,nodePosition[nodeId].y - 100);
+            ctx.lineTo(nodePosition[nodeId].x + 330,nodePosition[nodeId].y - 30);
+            ctx.lineTo(nodePosition[nodeId].x + 60,nodePosition[nodeId].y - 30);
+            ctx.lineTo(nodePosition[nodeId].x,nodePosition[nodeId].y);
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.moveTo(nodePosition[nodeId].x + 50,nodePosition[nodeId].y - 50);
+            ctx.lineTo(nodePosition[nodeId].x + 310,nodePosition[nodeId].y - 50);
+            ctx.strokeStyle = 'red';
+            ctx.stroke();
+            ctx.closePath();
+            //draw cn dashboard
+            var nodePositionCN = network.getPositions(["cn framework"]);
+            ctx.font = "11px Arial";
+            ctx.fillText("CPU: " + Object.keys(point).length + "/4",nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
+            var nodePositionTN = network.getPositions(["tn framework"]);
+            ctx.fillText("Throughput: " + Object.keys(point).length * 6 + "/24pps",nodePositionTN["tn framework"].x-150,nodePositionTN["tn framework"].y-140);
+            var nodePositionRAN = network.getPositions(["ran framework"]);
+            ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/50ms",nodePositionRAN["ran framework"].x-220,nodePositionRAN["ran framework"].y-140);
+            //draw ran dashboard
+            var abc = 1;
+            var min = 0;
+            var max = 0;
+            var start = 0;
+            var end = 0;
+            var scale = 0;
+            for(bandwidth in point){
+              min = 0;
+              max = point[bandwidth]["ran"]["slice"]["total"];
+              start = point[bandwidth]["ran"]["slice"]["start"] + 1;
+              end = point[bandwidth]["ran"]["slice"]["end"] + 1;
+              scale = 260 / (max - min);
+              ctx.fillText(min+"ms",nodePosition[nodeId].x + 40 + min * scale,nodePosition[nodeId].y - 35);
+              ctx.fillText(Math.floor(start/1000)+"ms",nodePosition[nodeId].x + 40 + start * scale,nodePosition[nodeId].y - 35);
+              ctx.fillText(end.toString().substring(0,2)+"ms",nodePosition[nodeId].x + 40 + end * scale,nodePosition[nodeId].y - 35);
+              ctx.fillText(max.toString().substring(0,2)+"ms",nodePosition[nodeId].x + 40 + max * scale,nodePosition[nodeId].y - 35);
+              ctx.beginPath();
+              ctx.moveTo(nodePosition[nodeId].x + 50 + start * scale,nodePosition[nodeId].y - 68);
+              ctx.lineTo(nodePosition[nodeId].x + 50 + end * scale,nodePosition[nodeId].y - 68);
+              ctx.lineWidth = 30;
+              ctx.strokeStyle = ccolor[abc%6];
+              ctx.stroke();
+              abc = abc + 1;
+            }
+      });
+
+
+    }
+  </script>
+  
+</head>
+
+<body onload="draw();">
+
+<p>Visualization</p>
+
+
+<div id="mynetwork"></div>
+<pre id="eventSpan"></pre>
+
+
+<!-- <script type="text/javascript">
+  // create an array with nodes
+  var nodes = new vis.DataSet();
+  // create an array with edges
+  var edges = new vis.DataSet();
+
+  // create a network
+  var container = document.getElementById('mynetwork');
+  var data = {
+    nodes: nodes,
+    edges: edges
+  };
+  var options = {physics:false};
+  var network = new vis.Network(container, data, options);
+
+
+</script> -->
+
+</body>
+</html>
