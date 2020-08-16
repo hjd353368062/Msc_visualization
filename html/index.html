@@ -155,7 +155,8 @@
           x: ran_x + 100,
           y: ran_y,
           physics:false,
-          fixed:true
+          fixed:true,
+          title: "Queue 1: 0-49998 <br>Queue null: 49998-49999"
         },
       ]);
 
@@ -407,7 +408,8 @@
                   edges.update({
                     id: res[i] + res[i+1],
                     color: ccolor[char%6],
-                    dashes: false
+                    dashes: false,
+                    label: "15" 
                   });
                 }
                 catch (err) {
@@ -437,13 +439,14 @@
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
               ctx.beginPath();
-              ctx.lineWidth = 17;
-              ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142);
-              ctx.lineTo(nodePosition[nodeId].x - 40,nodePosition[nodeId].y - 142);
+              ctx.lineWidth = 37;
+              ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 130);
+              ctx.lineTo(nodePosition[nodeId].x - 40,nodePosition[nodeId].y - 130);
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("CPU:1/4", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142); 
+              ctx.fillText("CPU :" + (9.3/Object.keys(data).length).toFixed(2)  + "% /4", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142); 
+              ctx.fillText("ram: " + (12.4/Object.keys(data).length).toFixed(2)  + "% /7881.35", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 132);
               //tn
               var nodePositionTN = network.getPositions("tn framework");
               ctx.strokeStyle = "white";
@@ -562,13 +565,14 @@
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
               ctx.beginPath();
-              ctx.lineWidth = 17;
-              ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 140);
-              ctx.lineTo(nodePosition[nodeId].x - 40,nodePosition[nodeId].y - 140);
+              ctx.lineWidth = 37;
+              ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 130);
+              ctx.lineTo(nodePosition[nodeId].x - 40,nodePosition[nodeId].y - 130);
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("CPU: " + Object.keys(point).length + "/4", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 142); 
+              ctx.fillText("CPU: 9.3% /4", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 142); 
+              ctx.fillText("ram: 12.4% /7881.35", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 132); 
               //tn
               var nodePositionTN = network.getPositions("tn framework");
               ctx.strokeStyle = "white";
@@ -632,7 +636,8 @@
             //draw cn dashboard
             var nodePositionCN = network.getPositions(["cn framework"]);
             ctx.font = "11px Arial";
-            ctx.fillText("CPU: " + Object.keys(point).length + "/4" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
+            ctx.fillText("CPU: 9.3% /4" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
+            ctx.fillText("ram: 12.4% /7881.35" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 130);
             var nodePositionTN = network.getPositions(["tn framework"]);
             ctx.fillText("Throughput: " + Object.keys(point).length * 6 + "/24pps",nodePositionTN["tn framework"].x-150,nodePositionTN["tn framework"].y-140);
             var nodePositionRAN = network.getPositions(["ran framework"]);
