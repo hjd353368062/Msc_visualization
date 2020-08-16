@@ -4,7 +4,7 @@
 import cgitb
 import subprocess
 import json
-cmd = "python3 /var/www/mini-hoen/service_request.py request -j"
+cmd = "python3 /var/www/mini-hoen/service_request.py info -j"
 proc = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 cgitb.enable()
 a = proc.stdout.decode('utf-8')

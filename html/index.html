@@ -38,7 +38,7 @@
       var ran_y = tn_y;
       var point = "";
       $(document).ready(function(){
-          $.getJSON("data.json", function(data){
+          $.getJSON("http://localhost/cgi-bin/getJSON.py", function(data){
             point = data;
           })
         });
@@ -239,7 +239,7 @@
         },
         ]);
       $(document).ready(function(){
-      $.getJSON("data.json", function(data){
+      $.getJSON("http://localhost/cgi-bin/getJSON.py", function(data){
         var index = 1
         for(x in data) {
           try {
@@ -316,7 +316,7 @@
         if (string.substring(0,5)=="slice") {
           char = parseInt(string.charAt(5));
           $(document).ready(function(){
-            $.getJSON("data.json", function(data){
+            $.getJSON("http://localhost/cgi-bin/getJSON.py", function(data){
               document.getElementById('eventSpan').innerHTML = JSON.stringify(data[Object.keys(data)[char - 1]], null, 4);
               const selectednodes = [];
               selectednodes.push("cn" + char);
