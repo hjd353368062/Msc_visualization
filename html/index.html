@@ -37,11 +37,14 @@
       var ran_x = tn_x + 300;
       var ran_y = tn_y;
       var point = "";
+      // var point2;
       $(document).ready(function(){
           $.getJSON("http://localhost/cgi-bin/getJSON.py", function(data){
             point = data;
           })
         });
+     
+      //fixed nodes
       nodes = new vis.DataSet([
         {
           id: "cloud",
@@ -96,46 +99,46 @@
           physics:false
         },
         //tn nodes
-        {
-          id: "s01",
-          title: "latency: null, <br> throughput: 6",
-          label: "Switch 1",
-          shape: 'image',
-          image: "switch.png",
-          x: tn_x,
-          y: tn_y,
-          physics:false
-        },
-        {
-          id: "s02",
-          title: "latency: null, <br> throughput: 6",
-          label: "Switch 2",
-          shape: 'image',
-          image: "switch.png",
-          x: tn_x + 100,
-          y: tn_y - 100,
-          physics:false
-        },
-        {
-          id: "s03",
-          title: "latency: null, <br> throughput: 6",
-          label: "Switch 3",
-          shape: 'image',
-          image: "switch.png",
-          x: tn_x + 200,
-          y: tn_y,
-          physics:false
-        },
-        {
-          id: "s04",
-          title: "latency: null, <br> throughput: 6",
-          label: "Switch 4",
-          shape: 'image',
-          image: "switch.png",
-          x: tn_x + 100,
-          y: tn_y + 100,
-          physics:false
-        },
+        // {
+        //   id: "s01",
+        //   title: "latency: null, <br> throughput: 6",
+        //   label: "Switch 1",
+        //   shape: 'image',
+        //   image: "switch.png",
+        //   x: tn_x,
+        //   y: tn_y,
+        //   physics:false
+        // },
+        // {
+        //   id: "s02",
+        //   title: "latency: null, <br> throughput: 6",
+        //   label: "Switch 2",
+        //   shape: 'image',
+        //   image: "switch.png",
+        //   x: tn_x + 100,
+        //   y: tn_y - 100,
+        //   physics:false
+        // },
+        // {
+        //   id: "s03",
+        //   title: "latency: null, <br> throughput: 6",
+        //   label: "Switch 3",
+        //   shape: 'image',
+        //   image: "switch.png",
+        //   x: tn_x + 200,
+        //   y: tn_y,
+        //   physics:false
+        // },
+        // {
+        //   id: "s04",
+        //   title: "latency: null, <br> throughput: 6",
+        //   label: "Switch 4",
+        //   shape: 'image',
+        //   image: "switch.png",
+        //   x: tn_x + 100,
+        //   y: tn_y + 100,
+        //   physics:false
+        // },
         {
           id: "RAN orchestration",
           shape: 'text',
@@ -155,89 +158,47 @@
           fixed:true
         },
       ]);
-      edges = new vis.DataSet([
-        {
-          id: 'RAN orchestrationRAN',
-          from: 'RAN orchestration',
-          to:"RAN",
-          color: "grey",
-          width: 10
-        },
-        {
-          id: "CN orchestrations01",
-          from: "CN orchestration",
-          to: "s01",
-          color: "grey",
-          dashes: true
-        },
-        {
-          id: "s01s02",
-          from: "s01",
-          to: "s02",
-          color: "grey",
-          dashes: true
-        },
-        // {
-        //   id: "s01s03",
-        //   from: "s01",
-        //   to: "s03",
-        //   color: "grey",
-        //   arrows: "to",
-        //   dashes: true
-        // },
-        {
-          id: "s01s04",
-          from: "s01",
-          to: "s04",
-          color: "grey",
-          dashes: true
-        },
-        // {
-        //   id: "s02s01",
-        //   from: "s02",
-        //   to: "s01",
-        //   color: "grey",
-        //   arrows: "to",
-        //   dashes: true
-        // },
-        {
-          id: "s02s03",
-          from: "s02",
-          to: "s03",
-          color: "grey",
-          dashes: true
-        },
-        // {
-        //   id: "s02s04",
-        //   from: "s02",
-        //   to: "s04",
-        //   color: "grey",
-        //   arrows: "to",
-        //   dashes: true
-        // },
-        {
-          id: "s04s03",
-          from: "s04",
-          to: "s03",
-          color: "grey",
-          dashes: true,
-        },
-        // {
-        //   id: "s03s01",
-        //   from: "s03",
-        //   to: "s01",
-        //   color: "grey",
-        //   dashes: true,
-        //   arrows:"to"
-        // },
-        {
-          id: "s03RAN orchestration",
-          from: "s03",
-          to: "RAN orchestration",
-          color: "grey",
-          dashes: true,
-        },
-        ]);
+
+      //dynamic nodes&edges from INFO
+      $.getJSON("http://localhost/cgi-bin/getINFO.py", function(data){
+        var index = 1
+        var xposition = [30, 100, 170, 100];
+        var yposition = [0, -100, 0, 100]
+        for(x in data["tn"]["topology"]) {
+          try {
+            // alert(x);
+            nodes.add(
+            {
+              id: x,
+              label: "Switch" + index,
+              shape: "image",
+              image: "switch.png",
+              x: tn_x + xposition[index - 1],
+              y: tn_y + yposition[index - 1],
+              title: Object.keys(data["tn"]["usage"][x])[0] + ": " + data["tn"]["usage"][x][Object.keys(data["tn"]["usage"][x])[0]] + "/" +
+              data["tn"]["capacity"][x][Object.keys(data["tn"]["usage"][x])[0]] + "<br>" + Object.keys(data["tn"]["usage"][x])[1] + ": " + data["tn"]["usage"][x][Object.keys(data["tn"]["usage"][x])[1]] + "/" +
+              data["tn"]["capacity"][x][Object.keys(data["tn"]["usage"][x])[1]],
+              physics: false
+            });
+
+            edges.add(
+            {
+              id: Object.keys(data["tn"]["topology"][x])[0].concat(x),
+              from: x,
+              to: Object.keys(data["tn"]["topology"][x])[0],
+              color: "grey",
+              dashes: true
+            });
+          }
+          catch(err){
+            alert(err);
+          };
+          index = index + 1;
+        };
+      }).fail(function(){
+            console.log("An error has occurred."); 
+        });
+      //dynamic nodes&edges from request
       $(document).ready(function(){
       $.getJSON("http://localhost/cgi-bin/getJSON.py", function(data){
         var index = 1
@@ -295,6 +256,91 @@
             console.log("An error has occurred.");
           });
     });
+      //fixed edges;
+      edges = new vis.DataSet([
+        {
+          id: 'RAN orchestrationRAN',
+          from: 'RAN orchestration',
+          to:"RAN",
+          color: "grey",
+          width: 10
+        },
+        {
+          id: "CN orchestrations01",
+          from: "CN orchestration",
+          to: "s01",
+          color: "grey",
+          dashes: true
+        },
+        // {
+        //   id: "s01s02",
+        //   from: "s01",
+        //   to: "s02",
+        //   color: "grey",
+        //   dashes: true
+        // },
+        // // {
+        // //   id: "s01s03",
+        // //   from: "s01",
+        // //   to: "s03",
+        // //   color: "grey",
+        // //   arrows: "to",
+        // //   dashes: true
+        // // },
+        // {
+        //   id: "s01s04",
+        //   from: "s01",
+        //   to: "s04",
+        //   color: "grey",
+        //   dashes: true
+        // },
+        // // {
+        // //   id: "s02s01",
+        // //   from: "s02",
+        // //   to: "s01",
+        // //   color: "grey",
+        // //   arrows: "to",
+        // //   dashes: true
+        // // },
+        // {
+        //   id: "s02s03",
+        //   from: "s02",
+        //   to: "s03",
+        //   color: "grey",
+        //   dashes: true
+        // },
+        // // {
+        // //   id: "s02s04",
+        // //   from: "s02",
+        // //   to: "s04",
+        // //   color: "grey",
+        // //   arrows: "to",
+        // //   dashes: true
+        // // },
+        // {
+        //   id: "s04s03",
+        //   from: "s04",
+        //   to: "s03",
+        //   color: "grey",
+        //   dashes: true,
+        // },
+        // // {
+        // //   id: "s03s01",
+        // //   from: "s03",
+        // //   to: "s01",
+        // //   color: "grey",
+        // //   dashes: true,
+        // //   arrows:"to"
+        // // },
+        {
+          id: "s03RAN orchestration",
+          from: "s03",
+          to: "RAN orchestration",
+          color: "grey",
+          dashes: true,
+        },
+        ]);
+      
       var container = document.getElementById('mynetwork');
       var data = {
           nodes: nodes,
@@ -327,7 +373,8 @@
                   edges.update({
                     id: "CN orchestration" + res[0],
                     color: ccolor[char%6],
-                    dashes: false
+                    dashes: false,
+                    label: data[Object.keys(data)[char - 1]]["tn"]["src"]
                   });
                 }
                 catch (err) {
@@ -337,7 +384,8 @@
                   edges.update({
                     id: res[res.length-1] + "RAN orchestration",
                     color: ccolor[char%6],
-                    dashes: false
+                    dashes: false,
+                    label: data[Object.keys(data)[char - 1]]["tn"]["dst"]
                   });
                 }
                 catch (err) {
@@ -442,8 +490,6 @@
         },
         {
           id: "s01s02",
-          from: "s01",
-          to: "s02",
           color: "grey",
           dashes: true
         },
@@ -457,8 +503,6 @@
         // },
         {
           id: "s01s04",
-          from: "s01",
-          to: "s04",
           color: "grey",
           dashes: true
         },
@@ -472,8 +516,6 @@
         // },
         {
           id: "s02s03",
-          from: "s02",
-          to: "s03",
           color: "grey",
           dashes: true
         },
@@ -487,8 +529,6 @@
         // },
         {
           id: "s04s03",
-          from: "s04",
-          to: "s03",
           color: "grey",
           dashes: true,
         },
@@ -569,6 +609,7 @@
       network.on("beforeDrawing", function (ctx) {
             var nodeId = "RAN";
             var nodePosition = network.getPositions([nodeId]);
+            var point2;
             ctx.strokeStyle = '#A6D5F7';
             ctx.fillStyle = '#294475';
             ctx.beginPath();
@@ -591,7 +632,7 @@
             //draw cn dashboard
             var nodePositionCN = network.getPositions(["cn framework"]);
             ctx.font = "11px Arial";
-            ctx.fillText("CPU: " + Object.keys(point).length + "/4",nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
+            ctx.fillText("CPU: " + Object.keys(point).length + "/4" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
             var nodePositionTN = network.getPositions(["tn framework"]);
             ctx.fillText("Throughput: " + Object.keys(point).length * 6 + "/24pps",nodePositionTN["tn framework"].x-150,nodePositionTN["tn framework"].y-140);
             var nodePositionRAN = network.getPositions(["ran framework"]);
