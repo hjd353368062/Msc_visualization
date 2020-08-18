@@ -445,8 +445,8 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("CPU :" + (9.3/Object.keys(data).length).toFixed(2)  + "% /4", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142); 
-              ctx.fillText("ram: " + (12.4/Object.keys(data).length).toFixed(2)  + "% /7881.35", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 132);
+              ctx.fillText("CPU: 1 /4", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142); 
+              ctx.fillText("ram: " + (12.4/Object.keys(data).length).toFixed(2)  + " /7881.35", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 132);
               //tn
               var nodePositionTN = network.getPositions("tn framework");
               ctx.strokeStyle = "white";
@@ -571,8 +571,8 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("CPU: 9.3% /4", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 142); 
-              ctx.fillText("ram: 12.4% /7881.35", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 132); 
+              ctx.fillText("CPU: "+ Object.keys(point).length+" /4", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 142); 
+              ctx.fillText("ram: "+ (7881.35/Object.keys(point).length).toFixed(2) + " /7881.35", nodePosition[nodeId].x -150,nodePosition[nodeId].y - 132); 
               //tn
               var nodePositionTN = network.getPositions("tn framework");
               ctx.strokeStyle = "white";
@@ -636,8 +636,8 @@
             //draw cn dashboard
             var nodePositionCN = network.getPositions(["cn framework"]);
             ctx.font = "11px Arial";
-            ctx.fillText("CPU: 9.3% /4" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
-            ctx.fillText("ram: 12.4% /7881.35" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 130);
+            ctx.fillText("CPU: "+ Object.keys(point).length+ " /4" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
+            ctx.fillText("ram: "+ (7881.35/Object.keys(point).length).toFixed(2) + " /7881.35" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 130);
             var nodePositionTN = network.getPositions(["tn framework"]);
             ctx.fillText("Throughput: " + Object.keys(point).length * 6 + "/24pps",nodePositionTN["tn framework"].x-150,nodePositionTN["tn framework"].y-140);
             var nodePositionRAN = network.getPositions(["ran framework"]);
