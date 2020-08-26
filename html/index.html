@@ -38,7 +38,7 @@
       var ran_y = tn_y;
       var point = "";
       //default value
-      var point2 = '{"cn":{"cpu":{"usage":0,"total": 0},"ram":{"usage":0,"total":0}},"tn":{"routes":{"0":{"throughput":0}}},"ran":{"total_resources":"00"}}';
+      var point2 = '{"cn":{"cpu":{"usage":0,"total": 0},"ram":{"usage":0,"total":0}},"tn":{"routes":{"0":{"throughput":0}}},"ran":{"total_resources":"test","total_resources":"00"}}';
       point2 = JSON.parse(point2);
 
       // $.when($.getJSON("http://localhost/cgi-bin/getJSON.py"), 
@@ -88,9 +88,10 @@
           label: "Transport Network",
           x: tn_x + 100,
           y: tn_y,
-          physics:false,
+          physics:true,
           fixed: true,
-          size: 180 
+          size: 180,
+          hidden: true
         },
         {
           id: "ran framework",
@@ -101,7 +102,7 @@
           y: ran_y,
           physics:false,
           fixed: true,
-          size: 180 
+          size: 180
         },
         {
           id: "CN orchestration",
@@ -162,14 +163,12 @@
         {
           id: "RAN",
           label: "Access Point",
-          title: "total: 50ms <br> service: \"best-effort\"",
           shape: "triangle",
           color: "#FFA807",
           x: ran_x + 100,
           y: ran_y,
           physics:false,
-          fixed:true,
-          title: "Queue 1: 0-49998 <br>Queue null: 49998-49999"
+          fixed:true
         },
       ]);
 
@@ -189,9 +188,9 @@
               image: "switch.png",
               x: tn_x + xposition[index - 1],
               y: tn_y + yposition[index - 1],
-              title: Object.keys(data["tn"]["usage"][x])[0] + ": " + data["tn"]["usage"][x][Object.keys(data["tn"]["usage"][x])[0]] + "/" +
-              data["tn"]["capacity"][x][Object.keys(data["tn"]["usage"][x])[0]] + "<br>" + Object.keys(data["tn"]["usage"][x])[1] + ": " + data["tn"]["usage"][x][Object.keys(data["tn"]["usage"][x])[1]] + "/" +
-              data["tn"]["capacity"][x][Object.keys(data["tn"]["usage"][x])[1]],
+              // title: Object.keys(data["tn"]["usage"][x])[0] + ": " + data["tn"]["usage"][x][Object.keys(data["tn"]["usage"][x])[0]] + "/" +
+              // data["tn"]["capacity"][x][Object.keys(data["tn"]["usage"][x])[0]] + "<br>" + Object.keys(data["tn"]["usage"][x])[1] + ": " + data["tn"]["usage"][x][Object.keys(data["tn"]["usage"][x])[1]] + "/" +
+              // data["tn"]["capacity"][x][Object.keys(data["tn"]["usage"][x])[1]],
               physics: false
             });
 
@@ -201,7 +200,8 @@
               from: x,
               to: Object.keys(data["tn"]["topology"][x])[0],
               color: "grey",
-              dashes: true
+              dashes: true,
+              title: "0/" + data["tn"]["capacity"][x][Object.keys(data["tn"]["topology"][x])[0]] + "Mpps"
             });
           }
           catch(err){
@@ -240,9 +240,9 @@
                   size: 8
                 },
                 label: "Container "+ index, 
-                title: "distro: " + JSON.stringify(data[x]["cn"]["distro"]) + " <br> "
-                   + "memory_usage: " + Math.round(JSON.stringify(data[x]["cn"]["memory"]["usage"] / 1000000)) + "MB <br> "
-                   + "cpu_usage: " + JSON.stringify(data[x]["cn"]["cpu"]["usage"].toString().substring(0,2)) + "% <br> "
+                title: "distro: " + JSON.stringify(data[x]["cn"]["distro"]) + " <br> " + "RAM: "
+                   + (data[x]["cn"]["memory"]["usage"] * 100).toFixed(2)  + "% @ "+ data[x]["cn"]["memory"]["limit"] + "(s)" + "<br> "
+                   + "CPU: "+ parseFloat(data[x]["cn"]["cpu"]["usage"]*100).toFixed(2)+ "% @ "+ data[x]["cn"]["cpu"]["limit"] + " Core(s)" + " <br> "
                    + "service: " + JSON.stringify(data[x]["cn"]["service"]),
                 shape: "database",
                 x: cn_x - 15 + 60 * (index % 3),
@@ -270,7 +270,8 @@
           });
     });
       //fixed edges;
-      edges = new vis.DataSet([
+      edges = new vis.DataSet();
+      edges.add([
         {
           id: 'RAN orchestrationRAN',
           from: 'RAN orchestration',
@@ -352,7 +353,7 @@
           color: "grey",
           dashes: true,
         },
-        ]);
+        ])
       
       var container = document.getElementById('mynetwork');
       var data = {
@@ -382,6 +383,17 @@
               var path = JSON.stringify(data[Object.keys(data)[char - 1]]["tn"]["path_string"]);
               var patt = /[s]\d\d/g;
               var res = path.match(patt);
+              try{
+                  nodes.update({
+                    id: "RAN",
+                    title: "IP: " + data[Object.keys(data)[char - 1]]["ran"]["ip"] + "<br>"
+                    	+ "MAC: " + data[Object.keys(data)[char - 1]]["ran"]["mac"] + "<br>" + 
+                    	"Usage: " + (((data[Object.keys(data)[char - 1]]["ran"]["slice"]["end"] - data[Object.keys(data)[char - 1]]["ran"]["slice"]["start"]) / data[Object.keys(data)[char - 1]]["ran"]["slice"]["total"])*100).toFixed(2) + "%"
+                  });
+                }
+                catch (err) {
+                    alert(err);
+                };
               try{
                   edges.update({
                     id: "CN orchestration" + res[0],
@@ -416,9 +428,10 @@
               for (var i = 0; i <= res.length -1; i++ ){
                 try{
                   edges.update({
-                    id: res[i] + res[i+1],
-                    color: ccolor[char%6],
-                    dashes: false 
+                    id: res[i] + res[i + 1],
+                    color: ccolor[char % 6],
+                    dashes: false,
+                    title: point2["tn"]["usage"][res[i]][res[i+1]] + "/" + point2["tn"]["capacity"][res[i]][res[i+1]] + "Mpps"
                   });
                 }
                 catch (err) {
@@ -445,14 +458,14 @@
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
               ctx.beginPath();
-              ctx.lineWidth = 37;
+              ctx.lineWidth = 57;
               ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 130);
-              ctx.lineTo(nodePosition[nodeId].x ,nodePosition[nodeId].y - 130);
+              ctx.lineTo(nodePosition[nodeId].x + 50 ,nodePosition[nodeId].y - 130);
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("CPU: "+ data[Object.keys(data)[char - 1]]["cn"]["cpu"]["usage"] + " / "+ point2["cn"]["cpu"]["total"], nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 142); 
-              ctx.fillText("RAM: " + data[Object.keys(data)[char - 1]]["cn"]["memory"]["usage"]  + " / "+ point2["cn"]["ram"]["total"].toFixed(2), nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 132);
+              ctx.fillText("CPU: "+ parseFloat(data[Object.keys(data)[char - 1]]["cn"]["cpu"]["usage"]*100).toFixed(2)+ "% @ "+ data[Object.keys(data)[char - 1]]["cn"]["cpu"]["limit"] + " Core(s)", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 147); 
+              ctx.fillText("RAM: " + (data[Object.keys(data)[char - 1]]["cn"]["memory"]["usage"] * 100).toFixed(2)  + "% @ "+ data[Object.keys(data)[char - 1]]["cn"]["memory"]["limit"] + "(s)", nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 127);
               //tn
               var nodePositionTN = network.getPositions("tn framework");
               ctx.strokeStyle = "white";
@@ -464,7 +477,7 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("Throughput: "+ data[Object.keys(data)[char - 1]]["tn"]["throughput"]+"pps", nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 142); 
+              ctx.fillText("Throughput: "+ data[Object.keys(data)[char - 1]]["tn"]["throughput"]+"Mpps", nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 147); 
               //ran
               var nodePositionRAN = network.getPositions("ran framework");
               ctx.strokeStyle = "white";
@@ -476,7 +489,7 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("Airtime: 10/50ms", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 140); 
+              ctx.fillText("Airtime: 10/50 us", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 147); 
               //bandwith
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
@@ -487,24 +500,32 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("Slice" + char, nodePositionRAN["ran framework"].x - 100+ 52*(char-1),nodePositionRAN["ran framework"].y - 90);
+              ctx.fillText("Slice" + char, nodePositionRAN["ran framework"].x - 100+ 52*(char-1),nodePositionRAN["ran framework"].y - 92);
               })
                   })
                 })
               
           }else{
-            edges.update([{
-          id: "CN orchestrations01",
-          from: "CN orchestration",
-          to: "s01",
-          color: "grey",
-          dashes: true
-        },
-        {
-          id: "s01s02",
-          color: "grey",
-          dashes: true
-        },
+          	nodes.update([
+          	{
+          		id:"RAN",
+          		title: null
+          	}]);
+
+            edges.update([
+            {
+          		id: "CN orchestrations01",
+          		from: "CN orchestration",
+          		to: "s01",
+          		color: "grey",
+          		dashes: true
+        	},
+        	{
+          		id: "s01s02",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s01"]["s02"]
+        	},
         // {
         //   id: "s01s03",
         //   from: "s01",
@@ -513,11 +534,12 @@
         //   arrows: "to",
         //   dashes: true
         // },
-        {
-          id: "s01s04",
-          color: "grey",
-          dashes: true
-        },
+        	{
+          		id: "s01s04",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s01"]["s04"] + "Mpps"
+        	},
         // {
         //   id: "s02s01",
         //   from: "s02",
@@ -526,11 +548,12 @@
         //   arrows: "to",
         //   dashes: true
         // },
-        {
-          id: "s02s03",
-          color: "grey",
-          dashes: true
-        },
+        	{
+          		id: "s02s03",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s02"]["s03"] + "Mpps"
+        	},
         // {
         //   id: "s02s04",
         //   from: "s02",
@@ -539,11 +562,12 @@
         //   arrows: "to",
         //   dashes: true
         // },
-        {
-          id: "s04s03",
-          color: "grey",
-          dashes: true,
-        },
+        	{
+          		id: "s04s03",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s04"]["s03"] + "Mpps"
+        	},
         // {
         //   id: "s03s01",
         //   from: "s03",
@@ -552,21 +576,21 @@
         //   dashes: true,
         //   arrows:"to"
         // },
-        {
-          id: "s03RAN orchestration",
-          from: "s03",
-          to: "RAN orchestration",
-          color: "grey",
-          dashes: true,
-        },
-        {
-          id: 'RAN orchestrationRAN',
-          from: 'RAN orchestration',
-          to:"RAN",
-          color: "grey",
-          width: 10
-        }
-        ])
+        	{
+          		id: "s03RAN orchestration",
+          		from: "s03",
+          		to: "RAN orchestration",
+          		color: "grey",
+          		dashes: true,
+        	},
+        	{
+          		id: 'RAN orchestrationRAN',
+          		from: 'RAN orchestration',
+          		to:"RAN",
+          		color: "grey",
+          		width: 10
+        	}
+        	])
             network.on("afterDrawing", function (ctx) {
                 //cn
               var nodeId = "cn framework";
@@ -574,14 +598,22 @@
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
               ctx.beginPath();
-              ctx.lineWidth = 37;
+              ctx.lineWidth = 57;
               ctx.moveTo(nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 130);
-              ctx.lineTo(nodePosition[nodeId].x ,nodePosition[nodeId].y - 130);
+              ctx.lineTo(nodePosition[nodeId].x + 50,nodePosition[nodeId].y - 130);
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("CPU: "+ point2["cn"]["cpu"]["usage"] + " /"+point2["cn"]["cpu"]["total"], nodePosition[nodeId].x -150,nodePosition[nodeId].y - 142); 
-              ctx.fillText("RAM: "+ point2["cn"]["ram"]["usage"] + " /" + point2["cn"]["ram"]["total"].toFixed(2) , nodePosition[nodeId].x -150,nodePosition[nodeId].y - 132); 
+
+              var sum_CPU = 0;
+              var sum_RAM = 0;
+              for (s in point){
+            	sum_CPU = sum_CPU + parseInt(point[s]["cn"]["cpu"]["limit"]);
+            	sum_RAM = sum_RAM + parseInt(point[s]["cn"]["memory"]["limit"]);
+              };
+              ctx.font = "11px Arial";
+              ctx.fillText("CPU: "+ (parseFloat(point2["cn"]["cpu"]["usage"]) * 100).toFixed(2)+ "% @ " + sum_CPU + "/"+ point2["cn"]["cpu"]["total"] + " Cores" ,nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 147);
+              ctx.fillText("RAM: " + (parseFloat(point2["cn"]["ram"]["usage"]) * 100).toFixed(2)+ "% @ " + sum_RAM + "/"+ (point2["cn"]["ram"]["total"]/1000).toFixed(2) + " GBs" ,nodePosition[nodeId].x - 150,nodePosition[nodeId].y - 127);
               //tn
               var nodePositionTN = network.getPositions("tn framework");
               ctx.strokeStyle = "white";
@@ -597,7 +629,7 @@
               for (throughputs in point2["tn"]["routes"]){
                 sum = sum + point2["tn"]["routes"][throughputs]["throughput"];
               };
-              ctx.fillText("Throughput: " + sum + "pps", nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 142); 
+              ctx.fillText("Throughput: " + sum + "Mpps", nodePositionTN["tn framework"].x - 150,nodePositionTN["tn framework"].y - 147); 
 
               var nodePositionRAN = network.getPositions("ran framework");
               ctx.strokeStyle = "white";
@@ -609,7 +641,7 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/" + point2["ran"]["total_resources"].toString().substring(0,2)+ "ms", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 140); 
+              ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/ " + point2["ran"]["total_resources"].toString().substring(0,2)+ "us", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 147); 
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
               ctx.beginPath();
@@ -642,22 +674,44 @@
             ctx.beginPath();
             ctx.moveTo(nodePosition[nodeId].x + 50,nodePosition[nodeId].y - 50);
             ctx.lineTo(nodePosition[nodeId].x + 310,nodePosition[nodeId].y - 50);
-            ctx.strokeStyle = 'red';
             ctx.stroke();
+
             ctx.closePath();
+            ctx.strokeStyle = 'red';
             //draw cn dashboard
             var nodePositionCN = network.getPositions(["cn framework"]);
+            var sum_CPU = 0;
+            var sum_RAM = 0;
+            for (s in point){
+            	sum_CPU = sum_CPU + parseInt(point[s]["cn"]["cpu"]["limit"]);
+            	sum_RAM = sum_RAM + parseInt(point[s]["cn"]["memory"]["limit"]);
+            };
             ctx.font = "11px Arial";
-            ctx.fillText("CPU: "+ point2["cn"]["cpu"]["usage"] + " /"+point2["cn"]["cpu"]["total"] ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
-            ctx.fillText("RAM: "+ point2["cn"]["ram"]["usage"] + " /" + point2["cn"]["ram"]["total"].toFixed(2) ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 130);
+            ctx.fillText("CPU: "+ (parseFloat(point2["cn"]["cpu"]["usage"]) * 100).toFixed(2)+ "% @ " + sum_CPU + "/"+ point2["cn"]["cpu"]["total"] + " Cores" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 140);
+            ctx.fillText("RAM: " + (parseFloat(point2["cn"]["ram"]["usage"]) * 100).toFixed(2)+ "% @ " + sum_RAM + "/"+ (point2["cn"]["ram"]["total"]/1000).toFixed(2) + " GBs" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 120);
             var nodePositionTN = network.getPositions(["tn framework"]);
             var sum = 0;
+            ctx.beginPath;
+            ctx.moveTo(nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y);
+            ctx.lineTo(nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y - 166);
+            ctx.quadraticCurveTo(nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y - 176, nodePositionTN["tn framework"].x - 170, nodePositionTN["tn framework"].y - 176,)
+            ctx.lineTo(nodePositionTN["tn framework"].x + 170, nodePositionTN["tn framework"].y - 176);
+            ctx.quadraticCurveTo(nodePositionTN["tn framework"].x + 180, nodePositionTN["tn framework"].y - 176, nodePositionTN["tn framework"].x + 180, nodePositionTN["tn framework"].y - 166,);
+            ctx.lineTo(nodePositionTN["tn framework"].x + 180, nodePositionTN["tn framework"].y + 166);
+            ctx.quadraticCurveTo(nodePositionTN["tn framework"].x + 180, nodePositionTN["tn framework"].y + 176, nodePositionTN["tn framework"].x + 170, nodePositionTN["tn framework"].y + 176,);
+            ctx.lineTo(nodePositionTN["tn framework"].x - 170, nodePositionTN["tn framework"].y + 176);
+            ctx.quadraticCurveTo(nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y + 176, nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y + 166,);
+            ctx.lineTo(nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y);
+            ctx.closePath();
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = 'grey'
+            ctx.stroke();
             for (throughputs in point2["tn"]["routes"]){
               sum = sum + point2["tn"]["routes"][throughputs]["throughput"];
             };
-            ctx.fillText("Throughput: " + sum + "pps",nodePositionTN["tn framework"].x-150,nodePositionTN["tn framework"].y-140);
+            ctx.fillText("Throughput: " + sum + "Mpps",nodePositionTN["tn framework"].x-150,nodePositionTN["tn framework"].y-140);
             var nodePositionRAN = network.getPositions(["ran framework"]);
-            ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/ "+point2["ran"]["total_resources"].toString().substring(0,2)+"ms",nodePositionRAN["ran framework"].x-220,nodePositionRAN["ran framework"].y-140);
+            ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/ "+point2["ran"]["total_resources"].toString().substring(0,2)+"us",nodePositionRAN["ran framework"].x-220,nodePositionRAN["ran framework"].y-140);
             //draw ran dashboard
             var abc = 1;
             var min = 0;
@@ -671,10 +725,10 @@
               start = point[bandwidth]["ran"]["slice"]["start"] + 1;
               end = point[bandwidth]["ran"]["slice"]["end"] + 1;
               scale = 260 / (max - min);
-              ctx.fillText(min+"ms",nodePosition[nodeId].x + 40 + min * scale,nodePosition[nodeId].y - 35);
-              ctx.fillText(Math.floor(start/1000)+"ms",nodePosition[nodeId].x + 40 + start * scale,nodePosition[nodeId].y - 35);
-              ctx.fillText(end.toString().substring(0,2)+"ms",nodePosition[nodeId].x + 40 + end * scale,nodePosition[nodeId].y - 35);
-              ctx.fillText(max.toString().substring(0,2)+"ms",nodePosition[nodeId].x + 40 + max * scale,nodePosition[nodeId].y - 35);
+              ctx.fillText(min+"us",nodePosition[nodeId].x + 40 + min * scale,nodePosition[nodeId].y - 35);
+              ctx.fillText(Math.floor(start/1000)+"us",nodePosition[nodeId].x + 40 + start * scale,nodePosition[nodeId].y - 35);
+              ctx.fillText(end.toString().substring(0,2)+"us",nodePosition[nodeId].x + 40 + end * scale,nodePosition[nodeId].y - 35);
+              ctx.fillText(max.toString().substring(0,2)+"us",nodePosition[nodeId].x + 40 + max * scale,nodePosition[nodeId].y - 35);
               ctx.beginPath();
               ctx.moveTo(nodePosition[nodeId].x + 50 + start * scale,nodePosition[nodeId].y - 68);
               ctx.lineTo(nodePosition[nodeId].x + 50 + end * scale,nodePosition[nodeId].y - 68);
