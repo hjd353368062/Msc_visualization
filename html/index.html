@@ -388,7 +388,9 @@
                     id: "RAN",
                     title: "IP: " + data[Object.keys(data)[char - 1]]["ran"]["ip"] + "<br>"
                     	+ "MAC: " + data[Object.keys(data)[char - 1]]["ran"]["mac"] + "<br>" + 
-                    	"Usage: " + (((data[Object.keys(data)[char - 1]]["ran"]["slice"]["end"] - data[Object.keys(data)[char - 1]]["ran"]["slice"]["start"]) / data[Object.keys(data)[char - 1]]["ran"]["slice"]["total"])*100).toFixed(2) + "%"
+                    	"Usage: " + (((data[Object.keys(data)[char - 1]]["ran"]["slice"]["end"] - data[Object.keys(data)[char - 1]]["ran"]["slice"]["start"]) / data[Object.keys(data)[char - 1]]["ran"]["slice"]["total"])*100).toFixed(2) + "%" + "<br>" + 
+                    	"Slice_start: " + (data[Object.keys(data)[char - 1]]["ran"]["slice"]["start"]/1000) + "us <br>" + 
+                    	"Slice_end: " + (data[Object.keys(data)[char - 1]]["ran"]["slice"]["end"]/1000) + "us"
                   });
                 }
                 catch (err) {
@@ -489,7 +491,7 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("Airtime: 10/50 us", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 147); 
+              ctx.fillText("Airtime: " + Math.round((data[Object.keys(data)[char - 1]]["ran"]["slice"]["end"] - data[Object.keys(data)[char - 1]]["ran"]["slice"]["start"])/1000) + "/ " + point2["ran"]["total_resources"].toString().substring(0,2) + "us", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 147); 
               //bandwith
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
@@ -641,7 +643,11 @@
               ctx.stroke();
               ctx.closePath();
               ctx.font = "11px Arial";
-              ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/ " + point2["ran"]["total_resources"].toString().substring(0,2)+ "us", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 147); 
+              var sum3 = 0;
+            	for (s3 in point){
+            	sum3 = sum3 + (parseInt(point[s3]["ran"]["slice"]["end"])-parseInt(point[s3]["ran"]["slice"]["start"]));
+            	};
+              ctx.fillText("Airtime: " + Math.round(sum3/1000)+ "/ "+point2["ran"]["total_resources"].toString().substring(0,2)+"us", nodePositionRAN["ran framework"].x - 220,nodePositionRAN["ran framework"].y - 147); 
               ctx.strokeStyle = "white";
               ctx.fillStyle = '#294475';
               ctx.beginPath();
@@ -691,6 +697,11 @@
             ctx.fillText("RAM: " + (parseFloat(point2["cn"]["ram"]["usage"]) * 100).toFixed(2)+ "% @ " + sum_RAM + "/"+ (point2["cn"]["ram"]["total"]/1000).toFixed(2) + " GBs" ,nodePositionCN["cn framework"].x - 150,nodePositionCN["cn framework"].y - 120);
             var nodePositionTN = network.getPositions(["tn framework"]);
             var sum = 0;
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "black";
+            ctx.fillText("Transport Network", nodePositionTN["tn framework"].x - 50, nodePositionTN["tn framework"].y + 200);
+            ctx.font = "11px Arial";
+            ctx.fillStyle = '#294475';
             ctx.beginPath;
             ctx.moveTo(nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y);
             ctx.lineTo(nodePositionTN["tn framework"].x - 180, nodePositionTN["tn framework"].y - 166);
@@ -711,7 +722,11 @@
             };
             ctx.fillText("Throughput: " + sum + "Mpps",nodePositionTN["tn framework"].x-150,nodePositionTN["tn framework"].y-140);
             var nodePositionRAN = network.getPositions(["ran framework"]);
-            ctx.fillText("Airtime: " + Object.keys(point).length * 10 + "/ "+point2["ran"]["total_resources"].toString().substring(0,2)+"us",nodePositionRAN["ran framework"].x-220,nodePositionRAN["ran framework"].y-140);
+            var sum3 = 0;
+            for (s3 in point){
+            	sum3 = sum3 + (parseInt(point[s3]["ran"]["slice"]["end"])-parseInt(point[s3]["ran"]["slice"]["start"]));
+            };
+            ctx.fillText("Airtime: " + Math.round(sum3/1000)+ "/ "+point2["ran"]["total_resources"].toString().substring(0,2)+"us",nodePositionRAN["ran framework"].x-220,nodePositionRAN["ran framework"].y-140);
             //draw ran dashboard
             var abc = 1;
             var min = 0;
