@@ -372,6 +372,85 @@
       var current_nodes = [];
       network = new vis.Network(container, data, options);
       network.on("click", function (params) {
+      	edges.update([
+            {
+          		id: "CN orchestrations01",
+          		from: "CN orchestration",
+          		to: "s01",
+          		color: "grey",
+          		dashes: true
+        	},
+        	{
+          		id: "s01s02",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s01"]["s02"]
+        	},
+        // {
+        //   id: "s01s03",
+        //   from: "s01",
+        //   to: "s03",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        	{
+          		id: "s01s04",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s01"]["s04"] + "Mpps"
+        	},
+        // {
+        //   id: "s02s01",
+        //   from: "s02",
+        //   to: "s01",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        	{
+          		id: "s02s03",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s02"]["s03"] + "Mpps"
+        	},
+        // {
+        //   id: "s02s04",
+        //   from: "s02",
+        //   to: "s04",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        	{
+          		id: "s04s03",
+          		color: "grey",
+          		dashes: true,
+          		title: "0/" + point2["tn"]["capacity"]["s04"]["s03"] + "Mpps"
+        	},
+        // {
+        //   id: "s03s01",
+        //   from: "s03",
+        //   to: "s01",
+        //   color: "grey",
+        //   dashes: true,
+        //   arrows:"to"
+        // },
+        	{
+          		id: "s03RAN orchestration",
+          		from: "s03",
+          		to: "RAN orchestration",
+          		color: "grey",
+          		dashes: true,
+        	},
+        	{
+          		id: 'RAN orchestrationRAN',
+          		from: 'RAN orchestration',
+          		to:"RAN",
+          		color: "grey",
+          		width: 10
+        	}
+        	])
         var string = params.nodes.toString();
         if (string.substring(0,5)=="slice") {
           char = parseInt(string.charAt(5));
