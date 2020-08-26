@@ -38,7 +38,7 @@
       var ran_y = tn_y;
       var point = "";
       //default value
-      var point2 = '{"cn":{"cpu":{"usage":0,"total": 0},"ram":{"usage":0,"total":0}},"tn":{"routes":{"0":{"throughput":0}}},"ran":{"total_resources":"test","total_resources":"00"}}';
+      var point2 = '{"cn":{"cpu":{"usage":0,"total": 0},"ram":{"usage":0,"total":0}},"tn":{"capacity": {"s01": {"s02": 30, "s04": 30}, "s02": {"s03": 30, "s01": 30}, "s03": {"s04": 30, "s02": 30}, "s04": {"s01": 30, "s03": 30}},"routes":{"0":{"throughput":0}}},"ran":{"total_resources":"test","total_resources":"00"}}';
       point2 = JSON.parse(point2);
 
       // $.when($.getJSON("http://localhost/cgi-bin/getJSON.py"), 
@@ -194,15 +194,15 @@
               physics: false
             });
 
-            edges.add(
-            {
-              id: Object.keys(data["tn"]["topology"][x])[0].concat(x),
-              from: x,
-              to: Object.keys(data["tn"]["topology"][x])[0],
-              color: "grey",
-              dashes: true,
-              title: "0/" + data["tn"]["capacity"][x][Object.keys(data["tn"]["topology"][x])[0]] + "Mpps"
-            });
+            // edges.add(
+            // {
+            //   id: Object.keys(data["tn"]["topology"][x])[0].concat(x),
+            //   from: x,
+            //   to: Object.keys(data["tn"]["topology"][x])[0],
+            //   color: "grey",
+            //   dashes: true,
+            //   title: "0/" + data["tn"]["capacity"][x][Object.keys(data["tn"]["topology"][x])[0]] + "Mpps"
+            // });
           }
           catch(err){
             alert(err);
@@ -286,43 +286,46 @@
           color: "grey",
           dashes: true
         },
+        {
+          id: "s01s02",
+          from: "s01",
+          to: "s02",
+          color: "grey",
+          dashes: true,
+          title: "0/" + point2["tn"]["capacity"]["s01"]["s02"] + "Mpps"
+        },
         // {
-        //   id: "s01s02",
+        //   id: "s01s03",
         //   from: "s01",
-        //   to: "s02",
-        //   color: "grey",
-        //   dashes: true
-        // },
-        // // {
-        // //   id: "s01s03",
-        // //   from: "s01",
-        // //   to: "s03",
-        // //   color: "grey",
-        // //   arrows: "to",
-        // //   dashes: true
-        // // },
-        // {
-        //   id: "s01s04",
-        //   from: "s01",
-        //   to: "s04",
-        //   color: "grey",
-        //   dashes: true
-        // },
-        // // {
-        // //   id: "s02s01",
-        // //   from: "s02",
-        // //   to: "s01",
-        // //   color: "grey",
-        // //   arrows: "to",
-        // //   dashes: true
-        // // },
-        // {
-        //   id: "s02s03",
-        //   from: "s02",
         //   to: "s03",
         //   color: "grey",
+        //   arrows: "to",
         //   dashes: true
         // },
+        {
+          id: "s01s04",
+          from: "s01",
+          to: "s04",
+          color: "grey",
+          dashes: true,
+          title: "0/" + point2["tn"]["capacity"]["s01"]["s04"] + "Mpps"
+        },
+        // {
+        //   id: "s02s01",
+        //   from: "s02",
+        //   to: "s01",
+        //   color: "grey",
+        //   arrows: "to",
+        //   dashes: true
+        // },
+        {
+          id: "s02s03",
+          from: "s02",
+          to: "s03",
+          color: "grey",
+          dashes: true,
+          title: "0/" + point2["tn"]["capacity"]["s02"]["s03"] + "Mpps"
+        },
         // // {
         // //   id: "s02s04",
         // //   from: "s02",
@@ -331,13 +334,14 @@
         // //   arrows: "to",
         // //   dashes: true
         // // },
-        // {
-        //   id: "s04s03",
-        //   from: "s04",
-        //   to: "s03",
-        //   color: "grey",
-        //   dashes: true,
-        // },
+        {
+          id: "s04s03",
+          from: "s04",
+          to: "s03",
+          color: "grey",
+          dashes: true,
+          title: "0/" + point2["tn"]["capacity"]["s04"]["s03"] + "Mpps"
+        },
         // // {
         // //   id: "s03s01",
         // //   from: "s03",
@@ -384,7 +388,7 @@
           		id: "s01s02",
           		color: "grey",
           		dashes: true,
-          		title: "0/" + point2["tn"]["capacity"]["s01"]["s02"]
+          		title: "0/" + point2["tn"]["capacity"]["s01"]["s02"] + "Mpps"
         	},
         // {
         //   id: "s01s03",
@@ -505,7 +509,6 @@
               catch(err) {
                 alert(err)
               }
-
               for (var i = 0; i <= res.length -1; i++ ){
                 try{
                   edges.update({
@@ -605,7 +608,7 @@
           		id: "s01s02",
           		color: "grey",
           		dashes: true,
-          		title: "0/" + point2["tn"]["capacity"]["s01"]["s02"]
+          		title: "0/" + point2["tn"]["capacity"]["s01"]["s02"] + "Mpps"
         	},
         // {
         //   id: "s01s03",
